@@ -1,0 +1,11 @@
+model Swimmers {
+  id        Int    @id @default(autoincrement())
+  name      String
+  surname   String
+  birthYear Int    @map("birth_year")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("swimmers")
+}

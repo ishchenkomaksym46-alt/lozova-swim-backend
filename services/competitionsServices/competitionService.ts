@@ -1,0 +1,57 @@
+import { prisma } from "../../src/lib/prisma.js";
+
+export const competitionsService = {
+    async getCompetitions() {
+        try {
+            const competitions = await prisma.competition.findMany({
+                select: {
+                    id: true,
+                    name: true,
+                    date: true,
+                    distances: {
+                        select: {
+                            id: true,
+                            name: true
+                        }
+                    }
+                },
+                take: 3,
+                orderBy: {
+                    id: "desc"
+                }
+            });
+            return { success: true, data: competitions };
+        } catch (e: any) {
+            console.error(e);
+            return { success: false, message: 'Невідома помилка' };
+        }
+    },
+
+    async createCompetition(name: string, date: string) {
+        try {
+            await prisma.competition.create({
+                data: {
+                    name,
+                    date
+                }
+            });
+
+            return { success: true };
+        } catch (e) {
+            return { success: false, message: "Невідома помилка" }
+        }
+    },
+
+    async deleteCompetition(name: string) {
+        try {
+            await prisma.competition.delete({
+                where: { name: name }
+            });
+
+            return { success: true, message: "Змагання успішно видалено!" };
+        } catch (e: any) {
+            console.error(e);
+            return { success: false, message: "Помилка сервера" }
+        }
+    }
+}

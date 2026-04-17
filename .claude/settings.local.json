@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la *.prisma)",
+      "Bash(npx prisma:*)",
+      "Bash(xargs grep:*)"
+    ]
+  }
+}

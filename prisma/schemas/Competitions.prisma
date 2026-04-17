@@ -1,0 +1,13 @@
+model Competition {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  date String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  distances Distances[]
+
+  @@map("competitions")
+}

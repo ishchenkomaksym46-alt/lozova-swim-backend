@@ -1,0 +1,16 @@
+model Results {
+  id            Int          @id @default(autoincrement())
+  participantId Int          @map("participant_id")
+  participant   Participants @relation(fields: [participantId], references: [id])
+  distanceId    Int          @map("distance_id")
+  distance      Distances    @relation(fields: [distanceId], references: [id])
+  heatId        Int          @map("heat_id")
+  heat          Heats        @relation(fields: [heatId], references: [id])
+  time          String
+  place         Int
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("results")
+}

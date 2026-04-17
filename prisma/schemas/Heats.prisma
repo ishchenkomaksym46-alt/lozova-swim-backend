@@ -1,0 +1,16 @@
+model Heats {
+  id         Int       @id @default(autoincrement())
+  name       String
+  distanceId Int       @map("distance_id")
+  distance   Distances @relation(fields: [distanceId], references: [id])
+  lane       Int
+
+  // Relations
+  participants Participants[]
+  results      Results[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("heats")
+}
