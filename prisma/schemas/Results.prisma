@@ -1,11 +1,11 @@
 model Results {
   id            Int          @id @default(autoincrement())
   participantId Int          @map("participant_id")
-  participant   Participants @relation(fields: [participantId], references: [id])
+  participant   Participants @relation(fields: [participantId], references: [id], onDelete: Cascade)
   distanceId    Int          @map("distance_id")
-  distance      Distances    @relation(fields: [distanceId], references: [id])
+  distance      Distances    @relation(fields: [distanceId], references: [id], onDelete: Cascade)
   heatId        Int          @map("heat_id")
-  heat          Heats        @relation(fields: [heatId], references: [id])
+  heat          Heats        @relation(fields: [heatId], references: [id], onDelete: Cascade)
   time          String
   place         Int
 

@@ -6,6 +6,7 @@ import { cors } from "hono/cors";
 import 'dotenv/config';
 import competitionsRoute from "../routes/competitionsRoute/competitionsRoute.js";
 import distancesRoute from "../routes/distancesRoute/distancesRoute.js";
+import heatsRoute from "../routes/heatsRoute/heatsRoute.js";
 
 const app = new Hono<ContextWithPrisma>()
 
@@ -19,13 +20,12 @@ app.route('/admin', adminRoute);
 
 //competitions
 app.route('/competitions', competitionsRoute);
-app.route('/competitions', competitionsRoute);
-app.route('/competitions', competitionsRoute);
 
 //distances
 app.route('/distances', distancesRoute);
-app.route('/distances', distancesRoute);
-app.route('/distances', distancesRoute);
+
+//heats
+app.route('/heats', heatsRoute);
 
 serve({
   fetch: app.fetch,

@@ -53,5 +53,22 @@ export const competitionsService = {
             console.error(e);
             return { success: false, message: "Помилка сервера" }
         }
+    },
+
+    async updateCompetition(oldName: string, name: string, date: string) {
+        try {
+            await prisma.competition.update({
+                where: { name: oldName },
+                data: {
+                    name,
+                    date
+                }
+            });
+
+            return { success: true, message: "Змагання успішно оновлено!" };
+        } catch (e) {
+            console.error(e);
+            return { success: false, message: "Проблема сервера" };
+        }
     }
 }

@@ -3,9 +3,10 @@ model Participants {
   name         String
   surname      String
   heatId       Int    @map("heat_id")
-  heat         Heats  @relation(fields: [heatId], references: [id])
+  heat         Heats  @relation(fields: [heatId], references: [id], onDelete: Cascade)
   declaredTime String @map("declared_time")
-  actualTime   String @default("No time yet") @map("actual_time")
+  actualTime   String @default("Справжнього часу це нема") @map("actual_time")
+  lane         Int
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")

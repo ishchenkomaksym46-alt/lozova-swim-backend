@@ -52,5 +52,21 @@ export const distancesServices = {
             console.error(e);
             return { success: false, message: "Помилка сервера" }
         }
+    },
+
+    async updateDistance(oldName: string, name: string) {
+        try {
+            await prisma.distances.update({
+                where: { name: oldName },
+                data: {
+                    name
+                }
+            });
+
+            return { success: true }
+        } catch (e) {
+            console.error(e);
+            return { success: false, message: "Помилка сервера" };
+        }
     }
 }

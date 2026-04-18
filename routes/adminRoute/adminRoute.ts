@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { setCookie, deleteCookie } from 'hono/cookie';
 import isAdminMiddleware from '../../middlewares/isAdminMiddleware.js';
 import type {ContextWithPrisma} from "../../types/types.js";
@@ -21,7 +22,16 @@ adminRoute.post('/login', async (c) => {
             return c.json({ success: false, message: 'Конфігурація сервера не завершена' }, 500);
         }
 
-        if (password !== adminPassword) {
+        console.log('Введений пароль:', password);
+        console.log('Хеш з .env:', adminPassword);
+        console.log('Довжина хешу:', adminPassword.length);
+        console.log('Починається з $2b$:', adminPassword.startsWith('$2b$'));
+
+        const isPasswordValid = await bcrypt.compare(password, adminPassword);
+
+        console.log('Результат перевірки:', isPasswordValid);
+
+        if (!isPasswordValid) {
             return c.json({ success: false, message: 'Невірний пароль' }, 401);
         }
 
@@ -45,6 +55,7 @@ adminRoute.post('/login', async (c) => {
             token
         });
     } catch (error) {
+        console.error('Помилка при логіні:', error);
         return c.json({ success: false, message: 'Помилка сервера' }, 500);
     }
 });
