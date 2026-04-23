@@ -6,10 +6,13 @@ import createDistanceController from "../../controllers/distancesController/crea
 import isAdminMiddleware from "../../middlewares/isAdminMiddleware.js";
 import deleteDistanceController from "../../controllers/distancesController/deleteDistanceController.js";
 import updateDistanceController from "../../controllers/distancesController/updateDistanceController.js";
+import getLaneCountController from "../../controllers/distancesController/getLaneCountController.js";
 
 const app = new Hono<ContextWithPrisma>();
 
 app.get('/', withPrisma, distancesController);
+
+app.get('/lane-count', withPrisma, getLaneCountController);
 
 app.post('/create', withPrisma, isAdminMiddleware, createDistanceController);
 

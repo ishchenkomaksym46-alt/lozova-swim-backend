@@ -14,7 +14,7 @@ export default async function heatsController(c: Context) {
         if(service.success) {
             return c.json({ success: true, data: service.data }, 200);
         } else {
-            return c.json({ success: false, message: "Не вдаломя отримати данні" });
+            return c.json({ success: false, message: "Не вдаломя отримати данні" }, 400);
         }
     } catch (e) {
         console.error(e);

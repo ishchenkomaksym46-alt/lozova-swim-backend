@@ -2,10 +2,10 @@ import type {Context} from "hono";
 import { competitionsService } from "../../services/competitionsServices/competitionService.js";
 
 export default async function createCompetitionController(c: Context) {
-    const { name, date } = await c.req.json();
+    const { name, date, laneCount } = await c.req.json();
 
     try {
-        const service = await competitionsService.createCompetition(name, date);
+        const service = await competitionsService.createCompetition(name, date, laneCount || 6);
 
         if(!service.success) {
             return c.json({ success: false, message: service.message });

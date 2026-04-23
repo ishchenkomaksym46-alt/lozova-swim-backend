@@ -68,5 +68,25 @@ export const distancesServices = {
             console.error(e);
             return { success: false, message: "Помилка сервера" };
         }
+    },
+
+    async getLaneCount(distanceId: number) {
+        try {
+            const distance = await prisma.distances.findUnique({
+                where: { id: distanceId },
+                select: {
+                    competition: {
+                        select: {
+                            laneCount: true
+                        }
+                    }
+                }
+            });
+
+            return { success: true, laneCount: distance?.competition.laneCount || 6 };
+        } catch (e) {
+            console.error(e);
+            return { success: false, message: "Помилка сервера" };
+        }
     }
 }

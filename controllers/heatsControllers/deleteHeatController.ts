@@ -2,21 +2,23 @@ import type {Context} from "hono";
 import {heatsService} from "../../services/heatsServices/heatsService.js";
 
 export default async function deleteHeatController(c: Context) {
-    const { id } = c.req.query();
+    const { heatNumber, distanceId } = c.req.query();
 
-    if(!id) {
-        return c.json({ success: false, message: "Поле ID обовязкове" });
+    if(!heatNumber || !distanceId) {
+        return c.json({ success: false, message: "Недостатньо данних" });
     }
 
     try {
-        const service = await heatsService.deleteHeat(Number(id));
+        const heat: number = Number(heatNumber);
+        const distance: number = Number(distanceId);
+        const service = await heatsService.deleteHeat(heat, distance);
 
         if(service.success) {
-            return c.json({ success: true })
+            return c.json({ success: true }, 200)
         } else {
             return c.json({ success: false, message: service.message });
         }
     } catch (e) {
-        return c.json({ success: false, message: "Невідома помилка" });
+        return c.json({ success: false, message: "Невідома помилка" }, 500);
     }
 }

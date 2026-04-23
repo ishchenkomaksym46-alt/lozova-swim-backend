@@ -8,6 +8,7 @@ export const competitionsService = {
                     id: true,
                     name: true,
                     date: true,
+                    laneCount: true,
                     distances: {
                         select: {
                             id: true,
@@ -27,12 +28,13 @@ export const competitionsService = {
         }
     },
 
-    async createCompetition(name: string, date: string) {
+    async createCompetition(name: string, date: string, laneCount: number = 6) {
         try {
             await prisma.competition.create({
                 data: {
                     name,
-                    date
+                    date,
+                    laneCount
                 }
             });
 
