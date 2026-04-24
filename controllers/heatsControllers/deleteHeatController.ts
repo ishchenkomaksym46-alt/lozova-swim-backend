@@ -11,6 +11,11 @@ export default async function deleteHeatController(c: Context) {
     try {
         const heat: number = Number(heatNumber);
         const distance: number = Number(distanceId);
+
+        if (isNaN(heat) || isNaN(distance)) {
+            return c.json({ success: false, message: "Невірний формат даних" }, 400);
+        }
+
         const service = await heatsService.deleteHeat(heat, distance);
 
         if(service.success) {

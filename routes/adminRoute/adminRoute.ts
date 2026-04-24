@@ -22,14 +22,7 @@ adminRoute.post('/login', async (c) => {
             return c.json({ success: false, message: 'Конфігурація сервера не завершена' }, 500);
         }
 
-        console.log('Введений пароль:', password);
-        console.log('Хеш з .env:', adminPassword);
-        console.log('Довжина хешу:', adminPassword.length);
-        console.log('Починається з $2b$:', adminPassword.startsWith('$2b$'));
-
         const isPasswordValid = await bcrypt.compare(password, adminPassword);
-
-        console.log('Результат перевірки:', isPasswordValid);
 
         if (!isPasswordValid) {
             return c.json({ success: false, message: 'Невірний пароль' }, 401);
@@ -44,15 +37,14 @@ adminRoute.post('/login', async (c) => {
         setCookie(c, 'admin_token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Lax',
+            sameSite: 'Strict',
             maxAge: 86400, // 24 hours
             path: '/'
         });
 
         return c.json({
             success: true,
-            message: 'Успішний вхід',
-            token
+            message: 'Успішний вхід'
         });
     } catch (error) {
         console.error('Помилка при логіні:', error);

@@ -9,6 +9,8 @@ model Competition {
 
   // Relations
   distances Distances[]
+  swimmers  Swimmers[]
+  protocols Protocols[]
 
   @@map("competitions")
 }

@@ -10,9 +10,20 @@ export default async function updateHeatController(c: Context) {
     }
 
     try {
+        const heatNum = Number(heatNumber);
+        const distanceNum = Number(distanceId);
+
+        if (isNaN(heatNum) || isNaN(distanceNum)) {
+            return c.json({ success: false, message: "Невірний формат даних" }, 400);
+        }
+
+        if (body.newHeatNumber !== undefined && isNaN(Number(body.newHeatNumber))) {
+            return c.json({ success: false, message: "Невірний формат нового номера запливу" }, 400);
+        }
+
         const service = await heatsService.updateHeat(
-            Number(heatNumber),
-            Number(distanceId),
+            heatNum,
+            distanceNum,
             body.newHeatNumber,
             body.participants
         );

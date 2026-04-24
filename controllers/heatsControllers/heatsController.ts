@@ -8,8 +8,14 @@ export default async function heatsController(c: Context) {
         return c.json({ success: false, message: "Невірні дані" }, 400);
     }
 
+    const distanceId = Number(id);
+
+    if (isNaN(distanceId)) {
+        return c.json({ success: false, message: "Невірний формат ID" }, 400);
+    }
+
     try {
-        const service = await heatsService.getHeats(Number(id));
+        const service = await heatsService.getHeats(distanceId);
 
         if(service.success) {
             return c.json({ success: true, data: service.data }, 200);

@@ -8,6 +8,7 @@ model Results {
   heat          Heats        @relation(fields: [heatId], references: [id], onDelete: Cascade)
   time          String
   place         Int
+  placeInHeat   Int          @default(999) @map("place_in_heat")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

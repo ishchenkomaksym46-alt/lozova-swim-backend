@@ -1,8 +1,10 @@
 model Swimmers {
-  id        Int    @id @default(autoincrement())
-  name      String
-  surname   String
-  birthYear Int    @map("birth_year")
+  id            Int         @id @default(autoincrement())
+  name          String
+  surname       String
+  birthYear     Int         @map("birth_year")
+  competitionId Int         @map("competition_id")
+  competition   Competition @relation(fields: [competitionId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

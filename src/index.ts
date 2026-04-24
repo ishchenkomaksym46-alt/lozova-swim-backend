@@ -7,6 +7,10 @@ import 'dotenv/config';
 import competitionsRoute from "../routes/competitionsRoute/competitionsRoute.js";
 import distancesRoute from "../routes/distancesRoute/distancesRoute.js";
 import heatsRoute from "../routes/heatsRoute/heatsRoute.js";
+import swimmersRoute from "../routes/swimmersRoute/swimmersRoute.js";
+import searchRoute from "../routes/searchRoute/searchRoute.js";
+import resultsRoute from "../routes/resultsRoute/resultsRoute.js";
+import protocolsRoute from "../routes/protocolsRoute/protocolsRoute.js";
 
 const app = new Hono<ContextWithPrisma>()
 
@@ -18,6 +22,9 @@ app.use('*', cors({
 //admin
 app.route('/admin', adminRoute);
 
+//search
+app.route('/search', searchRoute);
+
 //competitions
 app.route('/competitions', competitionsRoute);
 
@@ -26,6 +33,15 @@ app.route('/distances', distancesRoute);
 
 //heats
 app.route('/heats', heatsRoute);
+
+//swimmers
+app.route('/swimmers', swimmersRoute);
+
+//results
+app.route('/results', resultsRoute);
+
+//protocols
+app.route('/protocols', protocolsRoute);
 
 serve({
   fetch: app.fetch,
