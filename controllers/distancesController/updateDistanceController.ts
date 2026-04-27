@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import {distancesServices} from "../../services/distancesServices/distancesServices.js";
+import {distancesServices} from '../../services/distancesServices/distancesServices.js';
 
 export default async function updateDistanceController(c: Context) {
     const { oldName, name } = await c.req.json();

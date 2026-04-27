@@ -1,4 +1,4 @@
-import {prisma} from "../../src/lib/prisma.js";
+import {prisma} from '../../src/lib/prisma.js';
 
 function validateTimeFormat(time: string): boolean {
     const timeRegex = /^\d{1,2}:[0-5]\d\.\d{2}$/;

@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import {resultsService} from "../../services/resultsServices/resultsService.js";
+import {resultsService} from '../../services/resultsServices/resultsService.js';
 
 export default async function getResultsController(c: Context) {
     const { id } = c.req.query();

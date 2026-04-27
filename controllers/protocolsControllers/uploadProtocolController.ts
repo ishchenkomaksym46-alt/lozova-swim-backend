@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import {protocolsService} from "../../services/protocolsServices/protocolsService.js";
+import {protocolsService} from '../../services/protocolsServices/protocolsService.js';
 
 export default async function uploadProtocolController(c: Context) {
     const { competitionId, textContent } = await c.req.json();

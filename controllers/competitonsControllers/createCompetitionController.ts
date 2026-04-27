@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import { competitionsService } from "../../services/competitionsServices/competitionService.js";
+import { competitionsService } from '../../services/competitionsServices/competitionService.js';
 
 export default async function createCompetitionController(c: Context) {
     const { name, date, laneCount } = await c.req.json();

@@ -1,4 +1,4 @@
-import {prisma} from "../../src/lib/prisma.js";
+import {prisma} from '../../src/lib/prisma.js';
 
 export const swimmersService = {
     async getSwimmers(competitionId: number, page: number) {

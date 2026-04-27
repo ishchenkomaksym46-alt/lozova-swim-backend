@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import {searchService} from "../../services/searchService/searchService.js";
+import {searchService} from '../../services/searchService/searchService.js';
 
 export default async function searchSwimmersController(c: Context) {
     const { competitionId, page = 1, searchSurname } = c.req.query();

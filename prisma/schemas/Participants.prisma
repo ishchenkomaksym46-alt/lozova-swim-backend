@@ -2,15 +2,17 @@ model Participants {
   id           Int    @id @default(autoincrement())
   name         String
   surname      String
+  birthYear    Int?   @map("birth_year")
   heatId       Int    @map("heat_id")
   heat         Heats  @relation(fields: [heatId], references: [id], onDelete: Cascade)
   declaredTime String @map("declared_time")
-  actualTime   String @default("Справжнього часу це нема") @map("actual_time")
+  actualTime   String @default("Справжнього часу ще нема") @map("actual_time")
   lane         Int
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  results   Results[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  results Results[]
 
   @@map("participants")
 }

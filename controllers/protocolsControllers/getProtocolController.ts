@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import {protocolsService} from "../../services/protocolsServices/protocolsService.js";
+import {protocolsService} from '../../services/protocolsServices/protocolsService.js';
 
 export default async function getProtocolController(c: Context) {
     const { id } = c.req.query();

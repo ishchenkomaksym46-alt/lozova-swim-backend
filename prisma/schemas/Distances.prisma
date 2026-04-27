@@ -8,8 +8,8 @@ model Distances {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  heats     Heats[]
-  results   Results[]
+  heats        Heats[]
+  results      Results[]
 
   @@map("distances")
 }

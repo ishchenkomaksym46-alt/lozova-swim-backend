@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import {swimmersService} from "../../services/swimmersService/swimmersServices.js";
+import {swimmersService} from '../../services/swimmersService/swimmersServices.js';
 
 export default async function deleteSwimmerController(c: Context) {
     const { id } = c.req.query();

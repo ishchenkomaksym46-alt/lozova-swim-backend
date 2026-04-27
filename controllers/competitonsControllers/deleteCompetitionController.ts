@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import { competitionsService } from "../../services/competitionsServices/competitionService.js";
+import { competitionsService } from '../../services/competitionsServices/competitionService.js';
 
 export default async function deleteCompetitionController(c: Context) {
     const { name } = c.req.query();

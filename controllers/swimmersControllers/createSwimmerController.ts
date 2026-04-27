@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import {swimmersService} from "../../services/swimmersService/swimmersServices.js";
+import {swimmersService} from '../../services/swimmersService/swimmersServices.js';
 
 export default async function createSwimmerController(c: Context) {
     const { name, surname, birthYear, competitionId } = await c.req.json();

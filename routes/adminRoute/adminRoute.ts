@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { setCookie, deleteCookie } from 'hono/cookie';
 import isAdminMiddleware from '../../middlewares/isAdminMiddleware.js';
-import type {ContextWithPrisma} from "../../types/types.js";
+import type {ContextWithPrisma} from '../../types/types.js';
 
 const adminRoute = new Hono<ContextWithPrisma>();
 

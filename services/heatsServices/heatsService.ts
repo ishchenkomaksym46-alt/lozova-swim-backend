@@ -1,5 +1,5 @@
-import {prisma} from "../../src/lib/prisma.js";
-import {distributeLanes} from "./laneDistributionService.js";
+import {prisma} from '../../src/lib/prisma.js';
+import {distributeLanes} from './laneDistributionService.js';
 
 function validateTimeFormat(time: string): boolean {
     // Формат мм:сс.мс (миллисекунды 00-99)
@@ -46,6 +46,7 @@ export const heatsService = {
                 }
             }
 
+            //@ts-ignore
             await prisma.$transaction(async tx => {
                 // Получаем количество дорожек из соревнования
                 const distance = await tx.distances.findUnique({
@@ -95,12 +96,13 @@ export const heatsService = {
             return { success: true };
         } catch (e: any) {
             console.error(e);
-            return { success: false, message: e.message || "Невідома помилка" };
+            return { success: false, message: "Невідома помилка" };
         }
     },
 
     async deleteHeat(heatNumber: number, distanceId: number) {
         try {
+            //@ts-ignore
             await prisma.$transaction(async tx => {
                 const heat = await tx.heats.findFirst({
                     where: {

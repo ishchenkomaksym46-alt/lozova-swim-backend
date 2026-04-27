@@ -1,5 +1,5 @@
 import type {Context} from "hono";
-import {heatsService} from "../../services/heatsServices/heatsService.js";
+import {heatsService} from '../../services/heatsServices/heatsService.js';
 
 export default async function updateHeatController(c: Context) {
     const { heatNumber, distanceId } = c.req.query();
