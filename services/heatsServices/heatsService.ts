@@ -46,50 +46,43 @@ export const heatsService = {
                 }
             }
 
-            //@ts-ignore
-            await prisma.$transaction(async tx => {
-                // Получаем количество дорожек из соревнования
-                const distance = await tx.distances.findUnique({
-                    where: { id: Number(id) },
-                    select: {
-                        competition: {
-                            select: {
-                                laneCount: true
-                            }
+            // Получаем количество дорожек из соревнования
+            const distance = await prisma.distances.findUnique({
+                where: { id: Number(id) },
+                select: {
+                    competition: {
+                        select: {
+                            laneCount: true
                         }
                     }
-                });
-
-                const laneCount = distance?.competition.laneCount || 6;
-
-                // Проверка количества участников
-                if (participants.length > laneCount) {
-                    throw new Error(`Кількість учасників (${participants.length}) перевищує кількість доріжок (${laneCount})`);
                 }
+            });
 
-                // Автоматически распределяем дорожки
-                const lanes = distributeLanes(participants, laneCount);
+            const laneCount = distance?.competition.laneCount || 6;
 
-                const heat = await tx.heats.create({
-                    data: {
-                        heatNumber,
-                        distanceId: Number(id)
-                    },
-                    select: {
-                        id: true
-                    }
-                });
+            // Проверка количества участников
+            if (participants.length > laneCount) {
+                return { success: false, message: `Кількість учасників (${participants.length}) перевищує кількість доріжок (${laneCount})`};
+            }
 
-                for (let i = 0; i < participants.length; i++) {
-                    await tx.participants.create({
-                        data: {
-                            name: participants[i].name,
-                            surname: participants[i].surname,
-                            heatId: heat.id,
-                            declaredTime: participants[i].declared_time,
-                            lane: lanes[i]
+            // Автоматически распределяем дорожки
+            const lanes = distributeLanes(participants, laneCount);
+
+            // Создаем заплыв с участниками одним запросом
+            await prisma.heats.create({
+                data: {
+                    heatNumber,
+                    distanceId: Number(id),
+                    participants: {
+                        createMany: {
+                            data: participants.map((participant, i) => ({
+                                name: participant.name,
+                                surname: participant.surname,
+                                declaredTime: participant.declared_time,
+                                lane: lanes[i]
+                            }))
                         }
-                    });
+                    }
                 }
             });
 
@@ -102,26 +95,23 @@ export const heatsService = {
 
     async deleteHeat(heatNumber: number, distanceId: number) {
         try {
-            //@ts-ignore
-            await prisma.$transaction(async tx => {
-                const heat = await tx.heats.findFirst({
-                    where: {
-                        heatNumber,
-                        distanceId
-                    },
-                    select: {
-                        id: true
-                    }
-                });
-
-                if(!heat) {
-                    return { success: false, message: "Заплив не знайдено" }
+            const heat = await prisma.heats.findFirst({
+                where: {
+                    heatNumber,
+                    distanceId
+                },
+                select: {
+                    id: true
                 }
+            });
 
-                await tx.heats.delete({
-                    where: { id: heat.id }
-                });
-            })
+            if(!heat) {
+                return { success: false, message: "Заплив не знайдено" }
+            }
+
+            await prisma.heats.delete({
+                where: { id: heat.id }
+            });
 
             return { success: true };
         } catch (e) {
@@ -136,56 +126,59 @@ export const heatsService = {
         participants?: Array<{ id: number; actualTime: string }>
     ) {
         try {
-            await prisma.$transaction(async tx => {
-                // Найти заплыв
-                const heat = await tx.heats.findFirst({
+            // Найти заплыв
+            const heat = await prisma.heats.findFirst({
+                where: {
+                    heatNumber: heatNumber,
+                    distanceId: distanceId
+                }
+            });
+
+            if (!heat) {
+                return { success: false, message: "Заплив не знайдено" };
+            }
+
+            // Обновить номер заплыва, если указан
+            if (newHeatNumber && newHeatNumber !== heatNumber) {
+                // Проверить, не занят ли новый номер
+                const existingHeat = await prisma.heats.findFirst({
                     where: {
-                        heatNumber: heatNumber,
+                        heatNumber: newHeatNumber,
                         distanceId: distanceId
                     }
                 });
 
-                if (!heat) {
-                    throw new Error("Заплив не знайдено");
+                if (existingHeat) {
+                    return { success: false, message: `Заплив з номером ${newHeatNumber} вже існує` };
                 }
 
-                // Обновить номер заплыва, если указан
-                if (newHeatNumber && newHeatNumber !== heatNumber) {
-                    // Проверить, не занят ли новый номер
-                    const existingHeat = await tx.heats.findFirst({
-                        where: {
-                            heatNumber: newHeatNumber,
-                            distanceId: distanceId
-                        }
-                    });
+                await prisma.heats.update({
+                    where: { id: heat.id },
+                    data: { heatNumber: newHeatNumber }
+                });
+            }
 
-                    if (existingHeat) {
-                        throw new Error(`Заплив з номером ${newHeatNumber} вже існує`);
+            // Обновить actual_time для участников
+            if (participants && participants.length > 0) {
+                // Валидация формата времени для всех участников
+                for (const participant of participants) {
+                    if (participant.actualTime && participant.actualTime !== "Справжнього часу це нема") {
+                        if (!validateTimeFormat(participant.actualTime)) {
+                            return { success: false, message: `Неправильний формат часу. Використовуйте формат мм:сс.мс` };
+                        }
                     }
-
-                    await tx.heats.update({
-                        where: { id: heat.id },
-                        data: { heatNumber: newHeatNumber }
-                    });
                 }
 
-                // Обновить actual_time для участников
-                if (participants && participants.length > 0) {
-                    for (const participant of participants) {
-                        // Валидация формата времени
-                        if (participant.actualTime && participant.actualTime !== "Справжнього часу це нема") {
-                            if (!validateTimeFormat(participant.actualTime)) {
-                                throw new Error(`Неправильний формат часу. Використовуйте формат мм:сс.мс`);
-                            }
-                        }
-
-                        await tx.participants.update({
+                // Обновляем всех участников параллельно
+                await Promise.all(
+                    participants.map(participant =>
+                        prisma.participants.update({
                             where: { id: participant.id },
                             data: { actualTime: participant.actualTime }
-                        });
-                    }
-                }
-            });
+                        })
+                    )
+                );
+            }
 
             return { success: true };
         } catch (e: any) {

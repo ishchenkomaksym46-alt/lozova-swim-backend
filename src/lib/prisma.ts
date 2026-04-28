@@ -10,11 +10,20 @@ if(!database_url) {
 }
 
 const adapter = new PrismaPg({
-    connectionString: database_url
+    connectionString: database_url,
+    pool: {
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
+    }
 });
 
 const prisma = new PrismaClient({
-    adapter
+    adapter,
+    transactionOptions: {
+        maxWait: 10000, // 10 seconds
+        timeout: 20000, // 20 seconds
+    }
 });
 
 function withPrisma(c: Context, next: Next) {
