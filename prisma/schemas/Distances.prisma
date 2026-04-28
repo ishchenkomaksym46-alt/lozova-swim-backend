@@ -10,6 +10,7 @@ model Distances {
   // Relations
   heats        Heats[]
   results      Results[]
+  entryItems   EntryItems[]
 
   @@map("distances")
 }

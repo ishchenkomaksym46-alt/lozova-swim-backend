@@ -28,13 +28,14 @@ export const competitionsService = {
         }
     },
 
-    async createCompetition(name: string, date: string, laneCount: number = 6) {
+    async createCompetition(name: string, date: string, laneCount: number = 6, ageGroups: string = "10 і молодше,11-12,13-14,15-16,17-18,19+") {
         try {
             await prisma.competition.create({
                 data: {
                     name,
                     date,
-                    laneCount
+                    laneCount,
+                    ageGroups
                 }
             });
 

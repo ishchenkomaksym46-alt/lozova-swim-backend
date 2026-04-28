@@ -1,0 +1,31 @@
+model Entries {
+  id            Int         @id @default(autoincrement())
+  competitionId Int         @map("competition_id")
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  name          String      // Назва заявки (наприклад, назва команди або організації)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  entryItems EntryItems[]
+
+  @@map("entries")
+}
+
+model EntryItems {
+  id         Int       @id @default(autoincrement())
+  entryId    Int       @map("entry_id")
+  entry      Entries   @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  name       String
+  surname    String
+  birthYear  Int       @map("birth_year")
+  distanceId Int       @map("distance_id")
+  distance   Distances @relation(fields: [distanceId], references: [id], onDelete: Cascade)
+  seedTime   String    @map("seed_time")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("entry_items")
+}

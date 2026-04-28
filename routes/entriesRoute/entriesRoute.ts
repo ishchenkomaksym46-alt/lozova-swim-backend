@@ -1,0 +1,32 @@
+import {Hono} from "hono";
+import type {ContextWithPrisma} from "../../types/types.js";
+import withPrisma from "../../src/lib/prisma.js";
+import entriesController from "../../controllers/entriesControllers/entriesController.js";
+import createEntryController from "../../controllers/entriesControllers/createEntryController.js";
+import deleteEntryController from "../../controllers/entriesControllers/deleteEntryController.js";
+import entryProtocolController from "../../controllers/entriesControllers/entryProtocolController.js";
+import addEntryItemController from "../../controllers/entriesControllers/addEntryItemController.js";
+import getEntryItemsController from "../../controllers/entriesControllers/getEntryItemsController.js";
+import getEntryDetailsController from "../../controllers/entriesControllers/getEntryDetailsController.js";
+import deleteEntryItemController from "../../controllers/entriesControllers/deleteEntryItemController.js";
+import isAdminMiddleware from "../../middlewares/isAdminMiddleware.js";
+
+const app = new Hono<ContextWithPrisma>();
+
+app.get("/", withPrisma, entriesController);
+
+app.get("/details", withPrisma, getEntryDetailsController);
+
+app.get("/items", withPrisma, getEntryItemsController);
+
+app.get("/protocol", withPrisma, entryProtocolController);
+
+app.post("/create", withPrisma, isAdminMiddleware, createEntryController);
+
+app.post("/items/add", withPrisma, isAdminMiddleware, addEntryItemController);
+
+app.delete("/delete", withPrisma, isAdminMiddleware, deleteEntryController);
+
+app.delete("/items/delete", withPrisma, isAdminMiddleware, deleteEntryItemController);
+
+export default app;

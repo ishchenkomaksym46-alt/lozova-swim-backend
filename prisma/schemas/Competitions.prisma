@@ -3,6 +3,7 @@ model Competition {
   name      String @unique
   date      String
   laneCount Int    @default(6) @map("lane_count")
+  ageGroups String @default("10 і молодше,11-12,13-14,15-16,17-18,19+") @map("age_groups")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -11,6 +12,7 @@ model Competition {
   distances Distances[]
   swimmers  Swimmers[]
   protocols Protocols[]
+  entries   Entries[]
 
   @@map("competitions")
 }

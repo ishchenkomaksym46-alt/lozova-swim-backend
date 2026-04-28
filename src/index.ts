@@ -11,6 +11,9 @@ import swimmersRoute from "../routes/swimmersRoute/swimmersRoute.js";
 import searchRoute from "../routes/searchRoute/searchRoute.js";
 import resultsRoute from "../routes/resultsRoute/resultsRoute.js";
 import protocolsRoute from "../routes/protocolsRoute/protocolsRoute.js";
+import entriesRoute from "../routes/entriesRoute/entriesRoute.js";
+import seedingRoute from "../routes/seedingRoute/seedingRoute.js";
+import startListRoute from "../routes/startListRoute/startListRoute.js";
 
 const app = new Hono<ContextWithPrisma>()
 
@@ -42,6 +45,15 @@ app.route('/results', resultsRoute);
 
 //protocols
 app.route('/protocols', protocolsRoute);
+
+//entries
+app.route('/entries', entriesRoute);
+
+//seeding
+app.route('/seeding', seedingRoute);
+
+//start-list
+app.route('/start-list', startListRoute);
 
 serve({
   fetch: app.fetch,

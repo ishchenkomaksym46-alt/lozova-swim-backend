@@ -2,7 +2,7 @@ import type {Context} from "hono";
 import { competitionsService } from '../../services/competitionsServices/competitionService.js';
 
 export default async function createCompetitionController(c: Context) {
-    const { name, date, laneCount } = await c.req.json();
+    const { name, date, laneCount, ageGroups } = await c.req.json();
 
     if (!name || typeof name !== 'string' || name.trim().length < 3) {
         return c.json({ success: false, message: "Назва змагання повинна містити мінімум 3 символи" }, 400);
@@ -17,8 +17,10 @@ export default async function createCompetitionController(c: Context) {
         return c.json({ success: false, message: "Кількість доріжок повинна бути від 1 до 10" }, 400);
     }
 
+    const ageGroupsStr = ageGroups || "10 і молодше,11-12,13-14,15-16,17-18,19+";
+
     try {
-        const service = await competitionsService.createCompetition(name, date, lanes);
+        const service = await competitionsService.createCompetition(name, date, lanes, ageGroupsStr);
 
         if(!service.success) {
             return c.json({ success: false, message: service.message });
