@@ -82,5 +82,64 @@ export const swimmersService = {
             console.error(e);
             return { success: false, message: "Помилка при видаленні учасника" };
         }
+    },
+
+    async getSwimmerDetails(swimmerId: number, competitionId: number) {
+        try {
+            const swimmer = await prisma.swimmers.findFirst({
+                where: {
+                    id: swimmerId,
+                    competitionId
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    surname: true,
+                    birthYear: true,
+                }
+            });
+
+            if (!swimmer) {
+                return { success: false, message: "Учасника не знайдено" };
+            }
+
+            const participations = await prisma.participants.findMany({
+                where: {
+                    name: swimmer.name,
+                    surname: swimmer.surname
+                },
+                select: {
+                    id: true,
+                    declaredTime: true,
+                    actualTime: true,
+                    lane: true,
+                    heat: {
+                        select: {
+                            heatNumber: true,
+                            distance: {
+                                select: {
+                                    name: true
+                                }
+                            }
+                        }
+                    }
+                },
+                orderBy: [
+                    { heat: { distance: { name: 'asc' } } },
+                    { heat: { heatNumber: 'asc' } }
+                ]
+            });
+
+            return {
+                success: true,
+                swimmer: {
+                    ...swimmer,
+                    participations
+                }
+            };
+        } catch (e) {
+            console.error(e);
+            return { success: false, message: "Помилка при отриманні даних учасника" };
+        }
     }
 }
