@@ -1,22 +1,14 @@
-import {Hono} from "hono";
-import type {ContextWithPrisma} from '../../types/types.js';
+import { Hono } from "hono";
 import withPrisma from '../../src/lib/prisma.js';
 import heatsController from '../../controllers/heatsControllers/heatsController.js';
 import createHeatController from '../../controllers/heatsControllers/createHeatController.js';
 import deleteHeatController from '../../controllers/heatsControllers/deleteHeatController.js';
 import updateHeatController from '../../controllers/heatsControllers/updateHeatController.js';
 import heatDetailsController from '../../controllers/heatsControllers/heatDetailsController.js';
-
-const app = new Hono<ContextWithPrisma>();
-
+const app = new Hono();
 app.get('/', withPrisma, heatsController);
-
 app.get('/details', withPrisma, heatDetailsController);
-
 app.post('/create', withPrisma, createHeatController);
-
 app.put('/update', withPrisma, updateHeatController);
-
 app.delete('/delete', withPrisma, deleteHeatController);
-
 export default app;

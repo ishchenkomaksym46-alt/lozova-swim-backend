@@ -1,14 +1,12 @@
-import {prisma} from '../../src/lib/prisma.js';
-import {distributeLanes} from './laneDistributionService.js';
-
-function validateTimeFormat(time: string): boolean {
+import { prisma } from '../../src/lib/prisma.js';
+import { distributeLanes } from './laneDistributionService.js';
+function validateTimeFormat(time) {
     // Формат мм:сс.мс (миллисекунды 00-99)
     const timeRegex = /^\d{1,2}:[0-5]\d\.\d{2}$/;
     return timeRegex.test(time);
 }
-
 export const heatsService = {
-    async getHeats(id: number) {
+    async getHeats(id) {
         try {
             const heats = await prisma.heats.findMany({
                 where: { distanceId: id },
@@ -40,14 +38,13 @@ export const heatsService = {
                     }
                 }
             });
-
             return { success: true, data: heats };
-        } catch (e) {
+        }
+        catch (e) {
             return { success: false };
         }
     },
-
-    async createHeat(id: number, heatNumber: number, participants: Array<{ name: string, surname: string, declared_time: string }>) {
+    async createHeat(id, heatNumber, participants) {
         try {
             // Валидация формата времени
             for (const participant of participants) {
@@ -55,7 +52,6 @@ export const heatsService = {
                     return { success: false, message: `Неправильний формат часу для ${participant.name} ${participant.surname}. Використовуйте формат мм:сс.мс` };
                 }
             }
-
             // Получаем количество дорожек из соревнования
             const distance = await prisma.distances.findUnique({
                 where: { id: Number(id) },
@@ -67,17 +63,13 @@ export const heatsService = {
                     }
                 }
             });
-
             const laneCount = distance?.competition.laneCount || 6;
-
             // Проверка количества участников
             if (participants.length > laneCount) {
-                return { success: false, message: `Кількість учасників (${participants.length}) перевищує кількість доріжок (${laneCount})`};
+                return { success: false, message: `Кількість учасників (${participants.length}) перевищує кількість доріжок (${laneCount})` };
             }
-
             // Автоматически распределяем дорожки
             const lanes = distributeLanes(participants, laneCount);
-
             // Создаем заплыв с участниками одним запросом
             await prisma.heats.create({
                 data: {
@@ -95,15 +87,14 @@ export const heatsService = {
                     }
                 }
             });
-
             return { success: true };
-        } catch (e: any) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Невідома помилка" };
         }
     },
-
-    async deleteHeat(heatNumber: number, distanceId: number) {
+    async deleteHeat(heatNumber, distanceId) {
         try {
             const heat = await prisma.heats.findFirst({
                 where: {
@@ -114,27 +105,19 @@ export const heatsService = {
                     id: true
                 }
             });
-
-            if(!heat) {
-                return { success: false, message: "Заплив не знайдено" }
+            if (!heat) {
+                return { success: false, message: "Заплив не знайдено" };
             }
-
             await prisma.heats.delete({
                 where: { id: heat.id }
             });
-
             return { success: true };
-        } catch (e) {
+        }
+        catch (e) {
             return { success: false, message: "Невідома помилка" };
         }
     },
-
-    async updateHeat(
-        heatNumber: number,
-        distanceId: number,
-        newHeatNumber?: number,
-        participants?: Array<{ id: number; actualTime: string }>
-    ) {
+    async updateHeat(heatNumber, distanceId, newHeatNumber, participants) {
         try {
             // Найти заплыв
             const heat = await prisma.heats.findFirst({
@@ -143,11 +126,9 @@ export const heatsService = {
                     distanceId: distanceId
                 }
             });
-
             if (!heat) {
                 return { success: false, message: "Заплив не знайдено" };
             }
-
             // Обновить номер заплыва, если указан
             if (newHeatNumber && newHeatNumber !== heatNumber) {
                 // Проверить, не занят ли новый номер
@@ -157,17 +138,14 @@ export const heatsService = {
                         distanceId: distanceId
                     }
                 });
-
                 if (existingHeat) {
                     return { success: false, message: `Заплив з номером ${newHeatNumber} вже існує` };
                 }
-
                 await prisma.heats.update({
                     where: { id: heat.id },
                     data: { heatNumber: newHeatNumber }
                 });
             }
-
             // Обновить actual_time для участников
             if (participants && participants.length > 0) {
                 // Валидация формата времени для всех участников
@@ -178,26 +156,20 @@ export const heatsService = {
                         }
                     }
                 }
-
                 // Обновляем всех участников параллельно
-                await Promise.all(
-                    participants.map(participant =>
-                        prisma.participants.update({
-                            where: { id: participant.id },
-                            data: { actualTime: participant.actualTime }
-                        })
-                    )
-                );
+                await Promise.all(participants.map(participant => prisma.participants.update({
+                    where: { id: participant.id },
+                    data: { actualTime: participant.actualTime }
+                })));
             }
-
             return { success: true };
-        } catch (e: any) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: e.message || "Невідома помилка" };
         }
     },
-
-    async getHeatDetails(heatId: number) {
+    async getHeatDetails(heatId) {
         try {
             const heat = await prisma.heats.findUnique({
                 where: { id: heatId },
@@ -218,15 +190,14 @@ export const heatsService = {
                     }
                 }
             });
-
             if (!heat) {
                 return { success: false, message: "Заплив не знайдено" };
             }
-
             return { success: true, data: heat };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при отриманні даних запливу" };
         }
     }
-}
+};

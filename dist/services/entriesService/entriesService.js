@@ -1,12 +1,10 @@
-import {prisma} from "../../src/lib/prisma.js";
-
-function validateTimeFormat(time: string): boolean {
+import { prisma } from "../../src/lib/prisma.js";
+function validateTimeFormat(time) {
     const timeRegex = /^\d{1,2}:[0-5]\d\.\d{2}$/;
     return timeRegex.test(time);
 }
-
 export const entriesService = {
-    async createEntry(competitionId: number, name: string) {
+    async createEntry(competitionId, name) {
         try {
             const entry = await prisma.entries.create({
                 data: {
@@ -14,15 +12,14 @@ export const entriesService = {
                     name
                 }
             });
-
             return { success: true, data: { id: entry.id } };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при створенні заявки" };
         }
     },
-
-    async getEntries(competitionId: number) {
+    async getEntries(competitionId) {
         try {
             const entries = await prisma.entries.findMany({
                 where: { competitionId },
@@ -38,51 +35,44 @@ export const entriesService = {
                     createdAt: 'desc'
                 }
             });
-
             return { success: true, data: entries };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при отриманні заявок" };
         }
     },
-
-    async deleteEntry(id: number) {
+    async deleteEntry(id) {
         try {
             const entry = await prisma.entries.findUnique({
                 where: { id }
             });
-
             if (!entry) {
                 return { success: false, message: "Заявку не знайдено" };
             }
-
             await prisma.entries.delete({
                 where: { id }
             });
-
             return { success: true };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при видаленні заявки" };
         }
     },
-
-    async addEntryItem(entryId: number, name: string, surname: string, birthYear: number, distanceId: number, seedTime: string) {
+    async addEntryItem(entryId, name, surname, birthYear, distanceId, seedTime) {
         try {
             if (!validateTimeFormat(seedTime)) {
                 return { success: false, message: `Неправильний формат часу. Використовуйте формат мм:сс.мс` };
             }
-
             // Отримуємо competitionId з entry
             const entry = await prisma.entries.findUnique({
                 where: { id: entryId },
                 select: { competitionId: true }
             });
-
             if (!entry) {
                 return { success: false, message: "Заявку не знайдено" };
             }
-
             // Створюємо entry item
             await prisma.entryItems.create({
                 data: {
@@ -94,7 +84,6 @@ export const entriesService = {
                     seedTime
                 }
             });
-
             // Автоматично додаємо спортсмена до таблиці Swimmers (якщо його ще немає)
             const existingSwimmer = await prisma.swimmers.findFirst({
                 where: {
@@ -104,7 +93,6 @@ export const entriesService = {
                     competitionId: entry.competitionId
                 }
             });
-
             if (!existingSwimmer) {
                 await prisma.swimmers.create({
                     data: {
@@ -115,15 +103,14 @@ export const entriesService = {
                     }
                 });
             }
-
             return { success: true };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при додаванні учасника" };
         }
     },
-
-    async getEntryDetails(entryId: number) {
+    async getEntryDetails(entryId) {
         try {
             const entry = await prisma.entries.findUnique({
                 where: { id: entryId },
@@ -134,19 +121,17 @@ export const entriesService = {
                     createdAt: true
                 }
             });
-
             if (!entry) {
                 return { success: false, message: "Заявку не знайдено" };
             }
-
             return { success: true, data: entry };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при отриманні деталей заявки" };
         }
     },
-
-    async getEntryItems(entryId: number) {
+    async getEntryItems(entryId) {
         try {
             const items = await prisma.entryItems.findMany({
                 where: { entryId },
@@ -167,36 +152,32 @@ export const entriesService = {
                     createdAt: 'asc'
                 }
             });
-
             return { success: true, data: items };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при отриманні учасників" };
         }
     },
-
-    async deleteEntryItem(id: number) {
+    async deleteEntryItem(id) {
         try {
             const item = await prisma.entryItems.findUnique({
                 where: { id }
             });
-
             if (!item) {
                 return { success: false, message: "Учасника не знайдено" };
             }
-
             await prisma.entryItems.delete({
                 where: { id }
             });
-
             return { success: true };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при видаленні учасника" };
         }
     },
-
-    async getEntryProtocol(distanceId: number) {
+    async getEntryProtocol(distanceId) {
         try {
             const distance = await prisma.distances.findUnique({
                 where: { id: distanceId },
@@ -212,11 +193,9 @@ export const entriesService = {
                     }
                 }
             });
-
             if (!distance) {
                 return { success: false, message: "Дистанцію не знайдено" };
             }
-
             const entryItems = await prisma.entryItems.findMany({
                 where: { distanceId },
                 select: {
@@ -236,15 +215,12 @@ export const entriesService = {
                     { seedTime: 'asc' }
                 ]
             });
-
             // Розраховуємо вікову групу для кожного учасника
             const competitionYear = new Date(distance.competition.date).getFullYear();
             const ageGroupsArray = distance.competition.ageGroups.split(',');
-
             const itemsWithAgeGroup = entryItems.map(item => {
                 const age = competitionYear - item.birthYear;
                 let ageGroup = "Без групи";
-
                 for (const group of ageGroupsArray) {
                     if (group.includes('молодше')) {
                         const maxAge = parseInt(group.match(/\d+/)?.[0] || '10');
@@ -252,13 +228,15 @@ export const entriesService = {
                             ageGroup = group;
                             break;
                         }
-                    } else if (group.includes('-')) {
+                    }
+                    else if (group.includes('-')) {
                         const [min, max] = group.match(/\d+/g)?.map(Number) || [];
                         if (min && max && age >= min && age <= max) {
                             ageGroup = group;
                             break;
                         }
-                    } else if (group.includes('+')) {
+                    }
+                    else if (group.includes('+')) {
                         const minAge = parseInt(group.match(/\d+/)?.[0] || '19');
                         if (age >= minAge) {
                             ageGroup = group;
@@ -266,10 +244,8 @@ export const entriesService = {
                         }
                     }
                 }
-
                 return { ...item, ageGroup };
             });
-
             return {
                 success: true,
                 data: {
@@ -277,9 +253,10 @@ export const entriesService = {
                     items: itemsWithAgeGroup
                 }
             };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при отриманні заявочного протоколу" };
         }
     }
-}
+};

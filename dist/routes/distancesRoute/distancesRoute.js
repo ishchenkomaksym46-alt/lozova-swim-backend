@@ -1,5 +1,4 @@
-import {Hono} from "hono";
-import type {ContextWithPrisma} from '../../types/types.js';
+import { Hono } from "hono";
 import distancesController from '../../controllers/distancesController/distancesController.js';
 import withPrisma from '../../src/lib/prisma.js';
 import createDistanceController from '../../controllers/distancesController/createDistanceController.js';
@@ -7,20 +6,10 @@ import isAdminMiddleware from '../../middlewares/isAdminMiddleware.js';
 import deleteDistanceController from '../../controllers/distancesController/deleteDistanceController.js';
 import updateDistanceController from '../../controllers/distancesController/updateDistanceController.js';
 import getLaneCountController from '../../controllers/distancesController/getLaneCountController.js';
-import getDistanceDetailsController from '../../controllers/distancesController/getDistanceDetailsController.js';
-
-const app = new Hono<ContextWithPrisma>();
-
+const app = new Hono();
 app.get('/', withPrisma, distancesController);
-
-app.get('/details', withPrisma, getDistanceDetailsController);
-
 app.get('/lane-count', withPrisma, getLaneCountController);
-
 app.post('/create', withPrisma, isAdminMiddleware, createDistanceController);
-
 app.delete('/delete', withPrisma, isAdminMiddleware, deleteDistanceController);
-
 app.patch('/update', withPrisma, isAdminMiddleware, updateDistanceController);
-
 export default app;

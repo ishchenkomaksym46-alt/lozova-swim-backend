@@ -1,10 +1,9 @@
-import {prisma} from '../../src/lib/prisma.js';
-
+import { prisma } from '../../src/lib/prisma.js';
 export const swimmersService = {
-    async getSwimmers(competitionId: number, page: number) {
+    async getSwimmers(competitionId, page) {
         try {
             const limit = 10;
-            const offset = ( page - 1 ) * limit;
+            const offset = (page - 1) * limit;
             const swimmers = await prisma.swimmers.findMany({
                 where: { competitionId },
                 select: {
@@ -16,14 +15,13 @@ export const swimmersService = {
                 take: limit,
                 skip: offset,
             });
-
             return { success: true, swimmers: swimmers };
-        } catch (e) {
+        }
+        catch (e) {
             return { success: false, message: "Помилка сервісу" };
         }
     },
-
-    async createSwimmer(name: string, surname: string, birthYear: number, competitionId: number) {
+    async createSwimmer(name, surname, birthYear, competitionId) {
         try {
             await prisma.swimmers.create({
                 data: {
@@ -33,58 +31,51 @@ export const swimmersService = {
                     competitionId
                 }
             });
-
             return { success: true };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при створенні учасника" };
         }
     },
-
-    async updateSwimmer(id: number, data: { name?: string; surname?: string; birthYear?: number }) {
+    async updateSwimmer(id, data) {
         try {
             const swimmer = await prisma.swimmers.findUnique({
                 where: { id }
             });
-
             if (!swimmer) {
                 return { success: false, message: "Учасника не знайдено" };
             }
-
             await prisma.swimmers.update({
                 where: { id },
                 data
             });
-
             return { success: true };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при оновленні учасника" };
         }
     },
-
-    async deleteSwimmer(id: number) {
+    async deleteSwimmer(id) {
         try {
             const swimmer = await prisma.swimmers.findUnique({
                 where: { id }
             });
-
             if (!swimmer) {
                 return { success: false, message: "Учасника не знайдено" };
             }
-
             await prisma.swimmers.delete({
                 where: { id }
             });
-
             return { success: true };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при видаленні учасника" };
         }
     },
-
-    async getSwimmerDetails(swimmerId: number, competitionId: number) {
+    async getSwimmerDetails(swimmerId, competitionId) {
         try {
             const swimmer = await prisma.swimmers.findFirst({
                 where: {
@@ -98,11 +89,9 @@ export const swimmersService = {
                     birthYear: true,
                 }
             });
-
             if (!swimmer) {
                 return { success: false, message: "Учасника не знайдено" };
             }
-
             const participations = await prisma.participants.findMany({
                 where: {
                     name: swimmer.name,
@@ -137,12 +126,8 @@ export const swimmersService = {
                     { heat: { heatNumber: 'asc' } }
                 ]
             });
-
             // Filter participations to only include those from the selected competition
-            const filteredParticipations = participations.filter(
-                p => p.heat.distance.competitionId === competitionId
-            );
-
+            const filteredParticipations = participations.filter(p => p.heat.distance.competitionId === competitionId);
             return {
                 success: true,
                 swimmer: {
@@ -150,9 +135,10 @@ export const swimmersService = {
                     participations: filteredParticipations
                 }
             };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка при отриманні даних учасника" };
         }
     }
-}
+};

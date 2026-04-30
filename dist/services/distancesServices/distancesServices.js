@@ -1,7 +1,6 @@
-import {prisma} from '../../src/lib/prisma.js';
-
+import { prisma } from '../../src/lib/prisma.js';
 export const distancesServices = {
-    async getDistances(id: string) {
+    async getDistances(id) {
         try {
             const distances = await prisma.distances.findMany({
                 where: { competitionId: Number(id) },
@@ -13,15 +12,14 @@ export const distancesServices = {
                     }
                 }
             });
-
             return { success: true, distances: distances };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: 'Помилка сервісу' };
         }
     },
-
-    async createDistance(id: number, name: string) {
+    async createDistance(id, name) {
         try {
             await prisma.distances.create({
                 select: {
@@ -33,28 +31,26 @@ export const distancesServices = {
                     competitionId: id,
                 }
             });
-
             return { success: true };
-        } catch (e) {
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка сервера" };
         }
     },
-
-    async deleteDistance(name: string) {
+    async deleteDistance(name) {
         try {
             await prisma.distances.delete({
                 where: { name }
             });
-
-            return { success: true }
-        } catch (e: any) {
+            return { success: true };
+        }
+        catch (e) {
             console.error(e);
-            return { success: false, message: "Помилка сервера" }
+            return { success: false, message: "Помилка сервера" };
         }
     },
-
-    async updateDistance(oldName: string, name: string) {
+    async updateDistance(oldName, name) {
         try {
             await prisma.distances.update({
                 where: { name: oldName },
@@ -62,15 +58,14 @@ export const distancesServices = {
                     name
                 }
             });
-
-            return { success: true }
-        } catch (e) {
+            return { success: true };
+        }
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка сервера" };
         }
     },
-
-    async getLaneCount(distanceId: number) {
+    async getLaneCount(distanceId) {
         try {
             const distance = await prisma.distances.findUnique({
                 where: { id: distanceId },
@@ -82,39 +77,11 @@ export const distancesServices = {
                     }
                 }
             });
-
             return { success: true, laneCount: distance?.competition.laneCount || 6 };
-        } catch (e) {
-            console.error(e);
-            return { success: false, message: "Помилка сервера" };
         }
-    },
-
-    async getDistanceDetails(distanceId: number) {
-        try {
-            const distance = await prisma.distances.findUnique({
-                where: { id: distanceId },
-                select: {
-                    id: true,
-                    name: true,
-                    competition: {
-                        select: {
-                            name: true,
-                            date: true,
-                            ageGroups: true
-                        }
-                    }
-                }
-            });
-
-            if (!distance) {
-                return { success: false, message: "Дистанцію не знайдено" };
-            }
-
-            return { success: true, data: distance };
-        } catch (e) {
+        catch (e) {
             console.error(e);
             return { success: false, message: "Помилка сервера" };
         }
     }
-}
+};
