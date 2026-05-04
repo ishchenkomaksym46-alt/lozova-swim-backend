@@ -114,9 +114,8 @@ export const ParticipantsScalarFieldEnum = {
 export const ProtocolsScalarFieldEnum = {
     id: 'id',
     competitionId: 'competitionId',
-    fileName: 'fileName',
-    fileUrl: 'fileUrl',
-    textContent: 'textContent',
+    header: 'header',
+    text: 'text',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

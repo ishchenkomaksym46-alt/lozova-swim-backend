@@ -83,5 +83,31 @@ export const distancesServices = {
             console.error(e);
             return { success: false, message: "Помилка сервера" };
         }
+    },
+    async getDistanceDetails(distanceId) {
+        try {
+            const distance = await prisma.distances.findUnique({
+                where: { id: distanceId },
+                select: {
+                    id: true,
+                    name: true,
+                    competition: {
+                        select: {
+                            name: true,
+                            date: true,
+                            ageGroups: true
+                        }
+                    }
+                }
+            });
+            if (!distance) {
+                return { success: false, message: "Дистанцію не знайдено" };
+            }
+            return { success: true, data: distance };
+        }
+        catch (e) {
+            console.error(e);
+            return { success: false, message: "Помилка сервера" };
+        }
     }
 };

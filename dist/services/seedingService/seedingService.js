@@ -15,8 +15,15 @@ function parseTime(time) {
 // Функція для визначення вікової групи за роком народження
 function calculateAgeGroup(birthYear, competitionYear, ageGroupsArray) {
     for (const group of ageGroupsArray) {
+        // Перевіряємо групи типу "2012" (один рік народження)
+        if (/^\d{4}$/.test(group.trim())) {
+            const year = parseInt(group.trim());
+            if (birthYear === year) {
+                return group;
+            }
+        }
         // Перевіряємо групи типу "2016-2017" (діапазон років народження)
-        if (group.includes('-') && !group.includes('старше') && !group.includes('молодше')) {
+        else if (group.includes('-') && !group.includes('старше') && !group.includes('молодше')) {
             const years = group.match(/\d+/g)?.map(Number) || [];
             if (years.length === 2) {
                 const [year1, year2] = years;
@@ -152,10 +159,40 @@ export const seedingService = {
                         return parseTime(a.seedTime) - parseTime(b.seedTime);
                     });
                 }
+                // Функція для отримання мінімального року народження з групи
+                function getMinBirthYearFromGroup(groupName) {
+                    // Для груп типу "2016 і молодше" - повертаємо найбільший рік (наймолодші)
+                    if (groupName.includes('молодше')) {
+                        const year = parseInt(groupName.match(/\d+/)?.[0] || '9999');
+                        return year;
+                    }
+                    // Для груп типу "2007 і старше" - повертаємо найменший рік (найстарші)
+                    else if (groupName.includes('старше')) {
+                        const year = parseInt(groupName.match(/\d+/)?.[0] || '0');
+                        return year;
+                    }
+                    // Для груп типу "2016-2017" - повертаємо максимальний рік (наймолодші в діапазоні)
+                    else if (groupName.includes('-')) {
+                        const years = groupName.match(/\d+/g)?.map(Number) || [0];
+                        return Math.max(...years);
+                    }
+                    // Для груп типу "2012" - повертаємо цей рік
+                    else if (/^\d{4}$/.test(groupName.trim())) {
+                        return parseInt(groupName.trim());
+                    }
+                    return 0;
+                }
+                // Сортуємо групи за віком: від молодших до старших
+                const sortedGroups = Object.keys(groupedByAge).sort((a, b) => {
+                    const yearA = getMinBirthYearFromGroup(a);
+                    const yearB = getMinBirthYearFromGroup(b);
+                    // Більший рік = молодші = мають бути першими
+                    return yearB - yearA;
+                });
                 let heatNumber = 1;
                 const createdHeats = [];
-                // Створюємо заплави для кожної вікової групи
-                for (const group in groupedByAge) {
+                // Створюємо заплави для кожної вікової групи (від молодших до старших)
+                for (const group of sortedGroups) {
                     const participants = groupedByAge[group];
                     // Розбиваємо учасників на заплави
                     for (let i = 0; i < participants.length; i += laneCount) {
