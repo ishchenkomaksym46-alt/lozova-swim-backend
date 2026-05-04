@@ -14,6 +14,7 @@ import entriesRoute from "../routes/entriesRoute/entriesRoute.js";
 import seedingRoute from "../routes/seedingRoute/seedingRoute.js";
 import startListRoute from "../routes/startListRoute/startListRoute.js";
 const app = new Hono();
+const port = Number(process.env.PORT) || 8000;
 app.use('*', cors({
     origin: String(process.env.ORIGIN),
     credentials: true
@@ -42,7 +43,7 @@ app.route('/seeding', seedingRoute);
 app.route('/start-list', startListRoute);
 serve({
     fetch: app.fetch,
-    port: 8000
+    port
 }, (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);
 });

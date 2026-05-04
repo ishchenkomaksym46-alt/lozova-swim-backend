@@ -16,6 +16,7 @@ import seedingRoute from "../routes/seedingRoute/seedingRoute.js";
 import startListRoute from "../routes/startListRoute/startListRoute.js";
 
 const app = new Hono<ContextWithPrisma>()
+const port = Number(process.env.PORT) || 8000;
 
 app.use('*', cors({
   origin: String(process.env.ORIGIN),
@@ -57,7 +58,7 @@ app.route('/start-list', startListRoute);
 
 serve({
   fetch: app.fetch,
-  port: 8000
+  port
 }, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`)
-})
+  console.log(`Server is running on port ${info.port}`);
+});

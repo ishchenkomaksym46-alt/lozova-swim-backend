@@ -67,6 +67,32 @@ export const entriesService = {
         }
     },
 
+    async updateEntry(id: number, data: { name?: string; surname?: string; birthYear?: number; seedTime?: string }) {
+        try {
+            const entryItem = await prisma.entryItems.findUnique({
+                where: { id }
+            });
+
+            if (!entryItem) {
+                return { success: false, message: "РЈС‡Р°СЃРЅРёРєР° РЅРµ Р·РЅР°Р№РґРµРЅРѕ" };
+            }
+
+            if (data.seedTime && !validateTimeFormat(data.seedTime)) {
+                return { success: false, message: "РќРµРїСЂР°РІРёР»СЊРЅРёР№ С„РѕСЂРјР°С‚ С‡Р°СЃСѓ. Р’РёРєРѕСЂРёСЃС‚РѕРІСѓР№С‚Рµ С„РѕСЂРјР°С‚ РјРј:СЃСЃ.РјСЃ" };
+            }
+
+            await prisma.entryItems.update({
+                where: { id },
+                data
+            });
+
+            return { success: true };
+        } catch (e) {
+            console.error(e);
+            return { success: false, message: "РџРѕРјРёР»РєР° РїСЂРё РѕРЅРѕРІР»РµРЅРЅС– СѓС‡Р°СЃРЅРёРєР°" };
+        }
+    },
+
     async addEntryItem(entryId: number, name: string, surname: string, birthYear: number, distanceId: number, seedTime: string) {
         try {
             if (!validateTimeFormat(seedTime)) {
