@@ -2,9 +2,9 @@ model Protocols {
   id            Int         @id @default(autoincrement())
   competitionId Int         @map("competition_id")
   competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  fileName      String?     @map("file_name")
-  fileUrl       String?     @map("file_url")
-  textContent   String?     @map("text_content") @db.Text
+
+  header String @unique
+  text   String
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
