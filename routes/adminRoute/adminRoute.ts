@@ -7,6 +7,24 @@ import type {ContextWithPrisma} from '../../types/types.js';
 
 const adminRoute = new Hono<ContextWithPrisma>();
 
+function getAdminCookieOptions(c: Parameters<typeof setCookie>[0]) {
+    const requestUrl = new URL(c.req.url);
+    const forwardedProto = c.req.header('x-forwarded-proto')?.split(',')[0]?.trim();
+    const protocol = forwardedProto || requestUrl.protocol.replace(':', '');
+    const apiOrigin = `${protocol}://${requestUrl.host}`;
+    const requestOrigin = c.req.header('origin');
+    const isCrossOriginRequest = Boolean(requestOrigin && requestOrigin !== apiOrigin);
+    const isHttpsRequest = protocol === 'https';
+
+    return {
+        httpOnly: true,
+        secure: isHttpsRequest,
+        sameSite: (isCrossOriginRequest && isHttpsRequest ? 'None' : 'Lax') as 'None' | 'Lax',
+        maxAge: 86400,
+        path: '/'
+    };
+}
+
 adminRoute.post('/login', async (c) => {
     try {
         const { password } = await c.req.json();
@@ -34,17 +52,12 @@ adminRoute.post('/login', async (c) => {
             { expiresIn: '24h' }
         );
 
-        setCookie(c, 'admin_token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Strict',
-            maxAge: 86400, // 24 hours
-            path: '/'
-        });
+        setCookie(c, 'admin_token', token, getAdminCookieOptions(c));
 
         return c.json({
             success: true,
-            message: 'Успішний вхід'
+            message: 'Успішний вхід',
+            token
         });
     } catch (error) {
         console.error('Помилка при логіні:', error);
@@ -53,7 +66,12 @@ adminRoute.post('/login', async (c) => {
 });
 
 adminRoute.post('/logout', isAdminMiddleware, async (c) => {
-    deleteCookie(c, 'admin_token', { path: '/' });
+    deleteCookie(c, 'admin_token', {
+        path: '/',
+        secure: getAdminCookieOptions(c).secure,
+        sameSite: getAdminCookieOptions(c).sameSite
+    });
+
     return c.json({
         success: true,
         message: 'Успішний вихід'
