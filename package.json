@@ -2,9 +2,10 @@
   "name": "server",
   "type": "module",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "build": "prisma generate && tsc",
+    "start": "node dist/src/index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",
