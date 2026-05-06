@@ -119,13 +119,20 @@ export const heatsService = {
                 return { success: false, message: "Заплив не знайдено" }
             }
 
+            // Delete all participants associated with this heat (cascade delete)
+            await prisma.participants.deleteMany({
+                where: { heatId: heat.id }
+            });
+
+            // Delete the heat itself
             await prisma.heats.delete({
                 where: { id: heat.id }
             });
 
             return { success: true };
         } catch (e) {
-            return { success: false, message: "Невідома помилка" };
+            console.error(e);
+            return { success: false, message: "Невідома помилка при видаленні запливу" };
         }
     },
 
