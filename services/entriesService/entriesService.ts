@@ -93,7 +93,7 @@ export const entriesService = {
         }
     },
 
-    async addEntryItem(entryId: number, name: string, surname: string, birthYear: number, distanceId: number, seedTime: string) {
+    async addEntryItem(entryId: number, name: string, surname: string, birthYear: number, distanceId: number, seedTime: string, gender: string) {
         try {
             if (!validateTimeFormat(seedTime)) {
                 return { success: false, message: `Неправильний формат часу. Використовуйте формат мм:сс.мс` };
@@ -109,7 +109,7 @@ export const entriesService = {
                 return { success: false, message: "Заявку не знайдено" };
             }
 
-            // Створюємо entry item
+            // Створюємо entry item з гендером
             await prisma.entryItems.create({
                 data: {
                     entryId,
@@ -117,7 +117,8 @@ export const entriesService = {
                     surname,
                     birthYear,
                     distanceId,
-                    seedTime
+                    seedTime,
+                    gender
                 }
             });
 
@@ -182,6 +183,7 @@ export const entriesService = {
                     surname: true,
                     birthYear: true,
                     seedTime: true,
+                    gender: true,
                     distance: {
                         select: {
                             id: true,

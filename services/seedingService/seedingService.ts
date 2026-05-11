@@ -95,7 +95,8 @@ export const seedingService = {
                             surname: true,
                             birthYear: true,
                             seedTime: true,
-                            distanceId: true
+                            distanceId: true,
+                            gender: true
                         }
                     }
                 }
@@ -105,22 +106,22 @@ export const seedingService = {
                 return { success: false, message: "Заявку не знайдено" };
             }
 
-            if (entry.entryItems.length === 0) {
+            if ((entry.entryItems as any[]).length === 0) {
                 return { success: false, message: "У заявці немає учасників" };
             }
 
-            const laneCount = entry.competition.laneCount;
-            const competitionYear = new Date(entry.competition.date).getFullYear();
-            const ageGroupsArray = entry.competition.ageGroups.split(',');
+            const laneCount = (entry.competition as any).laneCount;
+            const competitionYear = new Date((entry.competition as any).date).getFullYear();
+            const ageGroupsArray = ((entry.competition as any).ageGroups as string).split(',');
 
             // Групуємо учасників за дистанціями
-            const itemsByDistance = entry.entryItems.reduce((acc, item) => {
+            const itemsByDistance = (entry.entryItems as any[]).reduce((acc: Record<number, any[]>, item) => {
                 if (!acc[item.distanceId]) {
                     acc[item.distanceId] = [];
                 }
                 acc[item.distanceId].push(item);
                 return acc;
-            }, {} as Record<number, typeof entry.entryItems>);
+            }, {});
 
             let totalHeatsCreated = 0;
             const allCreatedHeats = [];
@@ -149,112 +150,134 @@ export const seedingService = {
                     continue; // Пропускаємо дистанції з існуючими заплавами
                 }
 
-                // Додаємо вікову групу до кожного учасника
-                const itemsWithAgeGroup = entryItems.map(item => ({
-                    ...item,
-                    ageGroup: calculateAgeGroup(item.birthYear, competitionYear, ageGroupsArray)
-                }));
+                 // Додаємо вікову групу до кожного учасника
+                 const itemsWithAgeGroup = entryItems.map(item => ({
+                     ...item,
+                     ageGroup: calculateAgeGroup(item.birthYear, competitionYear, ageGroupsArray)
+                 }));
 
-                // Групуємо учасників за віковими групами
-                const groupedByAge = itemsWithAgeGroup.reduce((acc, item) => {
-                    const group = item.ageGroup;
-                    if (!acc[group]) {
-                        acc[group] = [];
-                    }
-                    acc[group].push(item);
-                    return acc;
-                }, {} as Record<string, typeof itemsWithAgeGroup>);
+                 // Спочатку групуємо за статтю: WOMEN першими, потім MEN
+                 const itemsByGender = itemsWithAgeGroup.reduce((acc, item) => {
+                     const gender = item.gender || 'WOMEN'; // Default to WOMEN if not specified
+                     if (!acc[gender]) {
+                         acc[gender] = [];
+                     }
+                     acc[gender].push(item);
+                     return acc;
+                 }, {} as Record<string, typeof itemsWithAgeGroup>);
 
-                // Сортуємо кожну групу: спочатку за роком народження (молодші першими), потім за часом
-                for (const group in groupedByAge) {
-                    groupedByAge[group].sort((a, b) => {
-                        // Спочатка сортуємо за роком народження (від більшого до меншого = молодші першими)
-                        if (b.birthYear !== a.birthYear) {
-                            return b.birthYear - a.birthYear;
-                        }
-                        // Потім за часом (швидші першими)
-                        return parseTime(a.seedTime) - parseTime(b.seedTime);
-                    });
-                }
+                 // Сортуємо гендери: WOMEN першими
+                 const genderOrder = ['WOMEN', 'MEN'];
+                 const sortedGenders = Object.keys(itemsByGender).sort((a, b) => {
+                     return genderOrder.indexOf(a) - genderOrder.indexOf(b);
+                 });
 
-                // Функція для отримання мінімального року народження з групи
-                function getMinBirthYearFromGroup(groupName: string): number {
-                    // Для груп типу "2016 і молодше" - повертаємо найбільший рік (наймолодші)
-                    if (groupName.includes('молодше')) {
-                        const year = parseInt(groupName.match(/\d+/)?.[0] || '9999');
-                        return year;
-                    }
-                    // Для груп типу "2007 і старше" - повертаємо найменший рік (найстарші)
-                    else if (groupName.includes('старше')) {
-                        const year = parseInt(groupName.match(/\d+/)?.[0] || '0');
-                        return year;
-                    }
-                    // Для груп типу "2016-2017" - повертаємо максимальний рік (наймолодші в діапазоні)
-                    else if (groupName.includes('-')) {
-                        const years = groupName.match(/\d+/g)?.map(Number) || [0];
-                        return Math.max(...years);
-                    }
-                    // Для груп типу "2012" - повертаємо цей рік
-                    else if (/^\d{4}$/.test(groupName.trim())) {
-                        return parseInt(groupName.trim());
-                    }
-                    return 0;
-                }
+                 // Сортуємо кожну групу: спочатку за роком народження (молодші першими), потім за часом
+                 // Функція для отримання мінімального року народження з групи
+                  function getMinBirthYearFromGroup(groupName: string): number {
+                      // Для груп типу "2016 і молодше" - повертаємо найбільший рік (наймолодші)
+                      if (groupName.includes('молодше')) {
+                          return parseInt(groupName.match(/\d+/)?.[0] || '9999');
+                      }
+                      // Для груп типу "2007 і старше" - повертаємо найменший рік (найстарші)
+                      else if (groupName.includes('старше')) {
+                          return parseInt(groupName.match(/\d+/)?.[0] || '0');
+                      }
+                      // Для груп типу "2016-2017" - повертаємо максимальний рік (наймолодші в діапазоні)
+                      else if (groupName.includes('-')) {
+                          const years = groupName.match(/\d+/g)?.map(Number) || [0];
+                          return Math.max(...years);
+                      }
+                      // Для груп типу "2012" - повертаємо цей рік
+                      else if (/^\d{4}$/.test(groupName.trim())) {
+                          return parseInt(groupName.trim());
+                      }
+                      return 0;
+                  }
 
-                // Сортуємо групи за віком: від молодших до старших
-                const sortedGroups = Object.keys(groupedByAge).sort((a, b) => {
-                    const yearA = getMinBirthYearFromGroup(a);
-                    const yearB = getMinBirthYearFromGroup(b);
-                    // Більший рік = молодші = мають бути першими
-                    return yearB - yearA;
-                });
+                 let heatNumber = 1;
+                 const createdHeats = [];
 
-                let heatNumber = 1;
-                const createdHeats = [];
+                 // Обробляємо кожну стать окремо та створюємо заплави (WOMEN першими, потім MEN)
+                 for (const gender of sortedGenders) {
+                     const genderItems = itemsByGender[gender];
 
-                // Створюємо заплави для кожної вікової групи (від молодших до старших)
-                for (const group of sortedGroups) {
-                    const participants = groupedByAge[group];
+                     // Групуємо учасників цієї статті за віковими групами
+                     const groupedByAge = genderItems.reduce((acc: Record<string, any[]>, item: any) => {
+                         const group = item.ageGroup;
+                         if (!acc[group]) {
+                             acc[group] = [];
+                         }
+                         acc[group].push(item);
+                         return acc;
+                     }, {});
 
-                    // Розбиваємо учасників на заплави
-                    for (let i = 0; i < participants.length; i += laneCount) {
-                        const heatParticipants = participants.slice(i, i + laneCount);
+                     // Сортуємо кожну вікову групу: спочатку за роком народження (молодші першими), потім за часом
+                     for (const group in groupedByAge) {
+                         groupedByAge[group].sort((a: any, b: any) => {
+                             // Спочатка сортуємо за роком народження (від більшого до меншого = молодші першими)
+                             if (b.birthYear !== a.birthYear) {
+                                 return b.birthYear - a.birthYear;
+                             }
+                             // Потім за часом (швидші першими)
+                             return parseTime(a.seedTime) - parseTime(b.seedTime);
+                         });
+                     }
 
-                        // Розподіляємо доріжки
-                        const lanes = distributeLanes(
-                            heatParticipants.map(p => ({ declared_time: p.seedTime })),
-                            laneCount
-                        );
+                     // Сортуємо групи за віком: від молодших до старших
+                     const sortedGroups = Object.keys(groupedByAge).sort((a, b) => {
+                         const yearA = getMinBirthYearFromGroup(a);
+                         const yearB = getMinBirthYearFromGroup(b);
+                         // Більший рік = молодші = мають бути першими
+                         return yearB - yearA;
+                     });
 
-                        // Створюємо заплив
-                        await prisma.heats.create({
-                            data: {
-                                heatNumber,
-                                distanceId,
-                                participants: {
-                                    createMany: {
-                                        data: heatParticipants.map((participant, idx) => ({
-                                            name: participant.name,
-                                            surname: participant.surname,
-                                            birthYear: participant.birthYear,
-                                            declaredTime: participant.seedTime,
-                                            lane: lanes[idx]
-                                        }))
-                                    }
-                                }
-                            }
-                        });
+                     // Створюємо заплави для кожної вікової групи (від молодших до старших)
+                     for (const group of sortedGroups) {
+                         const participants = groupedByAge[group];
 
-                        createdHeats.push({
-                            heatNumber,
-                            ageGroup: group,
-                            participantCount: heatParticipants.length,
-                            distanceName: distance.name
-                        });
+                         // Розбиваємо учасників на заплави
+                         for (let i = 0; i < participants.length; i += laneCount) {
+                             const heatParticipants = participants.slice(i, i + laneCount);
 
-                        heatNumber++;
-                    }
-                }
+                         // Розподіляємо доріжки
+                         const lanes = distributeLanes(
+                             heatParticipants.map((p: any) => ({ declared_time: p.seedTime })),
+                             laneCount
+                         );
+
+                             // Створюємо заплив (тільки з одною статтю)
+                             await prisma.heats.create({
+                                 data: {
+                                     heatNumber,
+                                     distanceId,
+                                     participants: {
+                                     createMany: {
+                                         data: heatParticipants.map((participant: any, idx: number) => ({
+                                             name: participant.name,
+                                             surname: participant.surname,
+                                             birthYear: participant.birthYear,
+                                             gender: participant.gender || 'WOMEN',
+                                             declaredTime: participant.seedTime,
+                                             lane: lanes[idx]
+                                         }))
+                                     }
+                                     }
+                                 }
+                             });
+
+                             createdHeats.push({
+                                 heatNumber,
+                                 ageGroup: group,
+                                 participantCount: heatParticipants.length,
+                                 distanceName: distance.name,
+                                 gender: gender
+                             });
+
+                             heatNumber++;
+                         }
+                     }
+                 }
 
                 totalHeatsCreated += createdHeats.length;
                 allCreatedHeats.push(...createdHeats);

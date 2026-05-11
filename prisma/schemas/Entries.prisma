@@ -13,16 +13,22 @@ model Entries {
   @@map("entries")
 }
 
+enum EntryItemGender {
+  WOMEN
+  MEN
+}
+
 model EntryItems {
-  id         Int       @id @default(autoincrement())
-  entryId    Int       @map("entry_id")
-  entry      Entries   @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  id         Int                @id @default(autoincrement())
+  entryId    Int                @map("entry_id")
+  entry      Entries            @relation(fields: [entryId], references: [id], onDelete: Cascade)
   name       String
   surname    String
-  birthYear  Int       @map("birth_year")
-  distanceId Int       @map("distance_id")
-  distance   Distances @relation(fields: [distanceId], references: [id], onDelete: Cascade)
-  seedTime   String    @map("seed_time")
+  birthYear  Int                @map("birth_year")
+  gender     EntryItemGender    @default(WOMEN)
+  distanceId Int                @map("distance_id")
+  distance   Distances          @relation(fields: [distanceId], references: [id], onDelete: Cascade)
+  seedTime   String             @map("seed_time")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

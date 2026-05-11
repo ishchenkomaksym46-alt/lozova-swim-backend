@@ -129,6 +129,31 @@ export const heatsService = {
                 where: { id: heat.id }
             });
 
+            // Re-sort heats: Renumber all heats after the deleted one
+            const heatsAfterDeleted = await prisma.heats.findMany({
+                where: {
+                    distanceId,
+                    heatNumber: {
+                        gt: heatNumber
+                    }
+                },
+                orderBy: {
+                    heatNumber: 'asc'
+                },
+                select: {
+                    id: true,
+                    heatNumber: true
+                }
+            });
+
+            // Update heat numbers: shift them down by 1
+            for (const h of heatsAfterDeleted) {
+                await prisma.heats.update({
+                    where: { id: h.id },
+                    data: { heatNumber: h.heatNumber - 1 }
+                });
+            }
+
             return { success: true };
         } catch (e) {
             console.error(e);

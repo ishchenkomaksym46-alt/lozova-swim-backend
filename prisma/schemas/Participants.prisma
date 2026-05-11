@@ -1,12 +1,18 @@
+enum Gender {
+  WOMEN
+  MEN
+}
+
 model Participants {
-  id           Int    @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   name         String
   surname      String
-  birthYear    Int?   @map("birth_year")
-  heatId       Int    @map("heat_id")
-  heat         Heats  @relation(fields: [heatId], references: [id], onDelete: Cascade)
-  declaredTime String @map("declared_time")
-  actualTime   String @default("Справжнього часу ще нема") @map("actual_time")
+  birthYear    Int?     @map("birth_year")
+  gender       Gender   @default(WOMEN)
+  heatId       Int      @map("heat_id")
+  heat         Heats    @relation(fields: [heatId], references: [id], onDelete: Cascade)
+  declaredTime String   @map("declared_time")
+  actualTime   String   @default("Справжнього часу ще нема") @map("actual_time")
   lane         Int
 
   createdAt DateTime @default(now()) @map("created_at")
