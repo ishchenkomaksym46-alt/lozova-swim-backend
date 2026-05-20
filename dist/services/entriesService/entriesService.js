@@ -66,10 +66,10 @@ export const entriesService = {
                 where: { id }
             });
             if (!entryItem) {
-                return { success: false, message: "РЈС‡Р°СЃРЅРёРєР° РЅРµ Р·РЅР°Р№РґРµРЅРѕ" };
+                return { success: false, message: "Учасника не знайдено" };
             }
             if (data.seedTime && !validateTimeFormat(data.seedTime)) {
-                return { success: false, message: "РќРµРїСЂР°РІРёР»СЊРЅРёР№ С„РѕСЂРјР°С‚ С‡Р°СЃСѓ. Р’РёРєРѕСЂРёСЃС‚РѕРІСѓР№С‚Рµ С„РѕСЂРјР°С‚ РјРј:СЃСЃ.РјСЃ" };
+                return { success: false, message: "Неправильний формат часу. Використовуйте формат мм:сс.мс" };
             }
             await prisma.entryItems.update({
                 where: { id },
@@ -79,10 +79,10 @@ export const entriesService = {
         }
         catch (e) {
             console.error(e);
-            return { success: false, message: "РџРѕРјРёР»РєР° РїСЂРё РѕРЅРѕРІР»РµРЅРЅС– СѓС‡Р°СЃРЅРёРєР°" };
+            return { success: false, message: "Помилка при оновленні учасника" };
         }
     },
-    async addEntryItem(entryId, name, surname, birthYear, distanceId, seedTime) {
+    async addEntryItem(entryId, name, surname, birthYear, distanceId, seedTime, gender) {
         try {
             if (!validateTimeFormat(seedTime)) {
                 return { success: false, message: `Неправильний формат часу. Використовуйте формат мм:сс.мс` };
@@ -95,7 +95,7 @@ export const entriesService = {
             if (!entry) {
                 return { success: false, message: "Заявку не знайдено" };
             }
-            // Створюємо entry item
+            // Створюємо entry item з гендером
             await prisma.entryItems.create({
                 data: {
                     entryId,
@@ -103,7 +103,8 @@ export const entriesService = {
                     surname,
                     birthYear,
                     distanceId,
-                    seedTime
+                    seedTime,
+                    gender: gender
                 }
             });
             // Автоматично додаємо спортсмена до таблиці Swimmers (якщо його ще немає)
@@ -163,6 +164,7 @@ export const entriesService = {
                     surname: true,
                     birthYear: true,
                     seedTime: true,
+                    gender: true,
                     distance: {
                         select: {
                             id: true,

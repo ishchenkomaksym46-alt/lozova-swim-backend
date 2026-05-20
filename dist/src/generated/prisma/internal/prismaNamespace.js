@@ -116,6 +116,7 @@ export const EntryItemsScalarFieldEnum = {
     name: 'name',
     surname: 'surname',
     birthYear: 'birthYear',
+    gender: 'gender',
     distanceId: 'distanceId',
     seedTime: 'seedTime',
     createdAt: 'createdAt',
@@ -133,6 +134,7 @@ export const ParticipantsScalarFieldEnum = {
     name: 'name',
     surname: 'surname',
     birthYear: 'birthYear',
+    gender: 'gender',
     heatId: 'heatId',
     declaredTime: 'declaredTime',
     actualTime: 'actualTime',
@@ -164,9 +166,7 @@ export const SwimmersScalarFieldEnum = {
     name: 'name',
     surname: 'surname',
     birthYear: 'birthYear',
-    competitionId: 'competitionId',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    competitionId: 'competitionId'
 };
 export const SortOrder = {
     asc: 'asc',

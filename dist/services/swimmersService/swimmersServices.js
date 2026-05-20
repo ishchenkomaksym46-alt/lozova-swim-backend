@@ -4,18 +4,21 @@ export const swimmersService = {
         try {
             const limit = 10;
             const offset = (page - 1) * limit;
-            const swimmers = await prisma.swimmers.findMany({
+            const participants = await prisma.swimmers.findMany({
                 where: { competitionId },
                 select: {
                     id: true,
                     name: true,
                     surname: true,
-                    birthYear: true,
+                    birthYear: true
                 },
                 take: limit,
-                skip: offset,
+                skip: offset
             });
-            return { success: true, swimmers: swimmers };
+            return {
+                success: true,
+                swimmers: participants
+            };
         }
         catch (e) {
             return { success: false, message: "Помилка сервісу" };

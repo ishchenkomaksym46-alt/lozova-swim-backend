@@ -24,28 +24,28 @@ adminRoute.post('/login', async (c) => {
     try {
         const { password } = await c.req.json();
         if (!password) {
-            return c.json({ success: false, message: 'РџР°СЂРѕР»СЊ РЅРµ РЅР°РґР°РЅРѕ' }, 400);
+            return c.json({ success: false, message: 'Пароль не надано' }, 400);
         }
         const adminPassword = process.env.ADMIN_PASSWORD;
         const jwtSecret = process.env.JWT_SECRET;
         if (!adminPassword || !jwtSecret) {
-            return c.json({ success: false, message: 'РљРѕРЅС„С–РіСѓСЂР°С†С–СЏ СЃРµСЂРІРµСЂР° РЅРµ Р·Р°РІРµСЂС€РµРЅР°' }, 500);
+            return c.json({ success: false, message: 'Конфігурація сервера не завершена' }, 500);
         }
         const isPasswordValid = await bcrypt.compare(password, adminPassword);
         if (!isPasswordValid) {
-            return c.json({ success: false, message: 'РќРµРІС–СЂРЅРёР№ РїР°СЂРѕР»СЊ' }, 401);
+            return c.json({ success: false, message: 'Невірний пароль' }, 401);
         }
         const token = jwt.sign({ isAdmin: true }, jwtSecret, { expiresIn: '24h' });
         setCookie(c, 'admin_token', token, getAdminCookieOptions(c));
         return c.json({
             success: true,
-            message: 'РЈСЃРїС–С€РЅРёР№ РІС…С–Рґ',
+            message: 'Успішний вхід',
             token
         });
     }
     catch (error) {
-        console.error('РџРѕРјРёР»РєР° РїСЂРё Р»РѕРіС–РЅС–:', error);
-        return c.json({ success: false, message: 'РџРѕРјРёР»РєР° СЃРµСЂРІРµСЂР°' }, 500);
+        console.error('Помилка при логіні:', error);
+        return c.json({ success: false, message: 'Помилка сервера' }, 500);
     }
 });
 adminRoute.post('/logout', isAdminMiddleware, async (c) => {
@@ -56,13 +56,13 @@ adminRoute.post('/logout', isAdminMiddleware, async (c) => {
     });
     return c.json({
         success: true,
-        message: 'РЈСЃРїС–С€РЅРёР№ РІРёС…С–Рґ'
+        message: 'Успішний вихід'
     });
 });
 adminRoute.get('/verify', isAdminMiddleware, async (c) => {
     return c.json({
         success: true,
-        message: 'РўРѕРєРµРЅ РґС–Р№СЃРЅРёР№',
+        message: 'Токен дійсний',
         //@ts-ignore
         user: c.get('user')
     });

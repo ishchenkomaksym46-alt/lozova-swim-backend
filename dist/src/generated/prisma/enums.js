@@ -7,5 +7,11 @@
 *
 * 🟢 You can import this file directly.
 */
-// This file is empty because there are no enums in the schema.
-export {};
+export const EntryItemGender = {
+    WOMEN: 'WOMEN',
+    MEN: 'MEN'
+};
+export const Gender = {
+    WOMEN: 'WOMEN',
+    MEN: 'MEN'
+};

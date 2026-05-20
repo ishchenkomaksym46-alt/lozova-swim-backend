@@ -1,4 +1,5 @@
 import {prisma} from "../../src/lib/prisma.js";
+import type {EntryItemGender} from "../../src/generated/prisma/enums.js";
 
 function validateTimeFormat(time: string): boolean {
     const timeRegex = /^\d{1,2}:[0-5]\d\.\d{2}$/;
@@ -74,11 +75,11 @@ export const entriesService = {
             });
 
             if (!entryItem) {
-                return { success: false, message: "РЈС‡Р°СЃРЅРёРєР° РЅРµ Р·РЅР°Р№РґРµРЅРѕ" };
+                return { success: false, message: "Учасника не знайдено" };
             }
 
             if (data.seedTime && !validateTimeFormat(data.seedTime)) {
-                return { success: false, message: "РќРµРїСЂР°РІРёР»СЊРЅРёР№ С„РѕСЂРјР°С‚ С‡Р°СЃСѓ. Р’РёРєРѕСЂРёСЃС‚РѕРІСѓР№С‚Рµ С„РѕСЂРјР°С‚ РјРј:СЃСЃ.РјСЃ" };
+                return { success: false, message: "Неправильний формат часу. Використовуйте формат мм:сс.мс" };
             }
 
             await prisma.entryItems.update({
@@ -89,7 +90,7 @@ export const entriesService = {
             return { success: true };
         } catch (e) {
             console.error(e);
-            return { success: false, message: "РџРѕРјРёР»РєР° РїСЂРё РѕРЅРѕРІР»РµРЅРЅС– СѓС‡Р°СЃРЅРёРєР°" };
+            return { success: false, message: "Помилка при оновленні учасника" };
         }
     },
 
@@ -118,7 +119,7 @@ export const entriesService = {
                     birthYear,
                     distanceId,
                     seedTime,
-                    gender
+                    gender: gender as EntryItemGender
                 }
             });
 
